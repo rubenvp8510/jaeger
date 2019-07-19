@@ -9,33 +9,7 @@ matrix:
   include:
   - go: "1.12.1"
     env:
-    - TESTS=true
-    - COVERAGE=true
-  - go: "1.12.1"
-    env:
-    - PROTO_GEN_TEST=true
-  - go: "1.12.1"
-    env:
-    - ALL_IN_ONE=true
-  - go: "1.12.1"
-    env:
-    - CROSSDOCK=true
-  - go: "1.12.1"
-    env:
-    - DOCKER=true
-    - DEPLOY=true
-  - go: "1.12.1"
-    env:
-    - ES_INTEGRATION_TEST=true
-  - go: "1.12.1"
-    env:
-    - KAFKA_INTEGRATION_TEST=true
-  - go: "1.12.1"
-    env:
-    - CASSANDRA_INTEGRATION_TEST=true
-  - go: "1.12.1"
-    env:
-    - HOTROD=true
+    - ES_TOKEN_PROPAGATION=true
 
 services:
   - docker
@@ -50,6 +24,12 @@ env:
     - secure: XNFxKWRKZLqcM7cceyN3jGZmaisdwNCSG+9b4eq3h022llrRd11Zaxp3JDbVqXtsHDiC9lzuI41dyiRphO4KwXKysawpJicNS1ZymkiITaF/blNAcncIS5NMsEbszDbwiP+FjqHdnMloGpSa3aEz2ehVEBaW7kiH49ayRWVs7GKV2OeH7V16B1116y5KvFiniDY/m/ycBd3K7HqKRuGx4EvlMIUbq0IFpl2N1dcrOFTDGTm8qzGTOwGqCQc/1NfllB7Iv2mkdu6dWhEyhRVOdXEWbwqU4Hjn/ugnAKQ1NnukaYmwgKM1WUba5cu1nFpCyMwp5tiGSef1UqXM380wrQkUvPNyiM4MD4hX0ab3bZxtd8TmlTLyDBE4Q+CaJoZzcbqRwi0B4CSFCLvm17GRmjB9iY8w/ig3bEndDFzLua7tx0MMPQVHOG0fjB1chCdOOfzcmdvIiCpVmmVKfuodulHN/6yWCi8XHWLee8L20zNxyVPbPT0XOnlkQZrnjZMyYvrpFaw3J6EKCnduk3GhHYI5RigJk2xorRiXgeN9DkFw/TuBIV3CMHi6sbgiNIv15CLO0ZGlUJnF+q4u5o9qUT/XSykNn0+Z/2ABMIJvS496gU3OT7RbjmuZforqyvCniMow4hDiE8MtZMBYOSmM1CiHQb413/kPgUjYQ2ajnuU=
     # override default yarn
     - PATH=$HOME/.yarn/bin:$PATH
+
+before_install:
+  # add 172.16.0.0/12 as insecure registry (OpenShift internal registry)
+  - sudo sed -i "s/\DOCKER_OPTS=\"/DOCKER_OPTS=\"--insecure-registry=172.16.0.0\/12 /g" /etc/default/docker
+  - sudo cat /etc/default/docker
+  - sudo service docker restart
 
 install:
   - docker rmi $(docker images -q) || true
@@ -71,6 +51,7 @@ script:
   - if [ "$CROSSDOCK" == true ]; then bash ./scripts/travis/build-crossdock.sh ; else echo 'skipping crossdock'; fi
   - if [ "$DOCKER" == true ]; then bash ./scripts/travis/build-docker-images.sh ; else echo 'skipping docker images'; fi
   - if [ "$ES_INTEGRATION_TEST" == true ]; then bash ./scripts/travis/es-integration-test.sh ; else echo 'skipping elastic search integration test'; fi
+  - if [ "$ES_TOKEN_PROPAGATION" == true ]; then bash ./scripts/travis/es-token-propagation-test.sh ; else echo 'skipping elastic search token propagation integration test'; fi
   - if [ "$KAFKA_INTEGRATION_TEST" == true ]; then bash ./scripts/travis/kafka-integration-test.sh ; else echo 'skipping kafka integration test'; fi
   - if [ "$CASSANDRA_INTEGRATION_TEST" == true ]; then bash ./scripts/travis/cassandra-integration-test.sh ; else echo 'skipping cassandra integration test'; fi
   - if [ "$HOTROD" == true ]; then bash ./scripts/travis/hotrod-integration-test.sh ; else echo 'skipping hotrod example'; fi
