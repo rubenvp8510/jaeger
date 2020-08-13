@@ -55,6 +55,7 @@ require (
 	github.com/prometheus/procfs v0.1.3 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20190826022208-cac0b30c2563 // indirect
 	github.com/rs/cors v1.7.0
+	github.com/rubenvp8510/jaeger-fs-storage v0.0.0-20200929000045-41653d5728ca
 	github.com/sectioneight/md-to-godoc v0.0.0-20161108233149-55e43be6c335
 	github.com/securego/gosec v0.0.0-20200203094520-d13bb6d2420c
 	github.com/soheilhy/cmux v0.1.4
